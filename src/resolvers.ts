@@ -1,34 +1,28 @@
 /* eslint-disable prettier/prettier */
-import { CreateUserInput, MutationResolvers, QueryResolvers, Resolvers } from './types/types';
-import datasource from './datasource';
-
-const createUser: MutationResolvers['registerUser'] = (parent, args) => {
-  const { email, firstName, lastName, password }: CreateUserInput = args.input;
-
-  const user = {
-    email,
-    firstName,
-    id: `${datasource.length + 1}`,
-    lastName,
-    password,
-  };
-
-  datasource.push(user);
-
-  return user;
-};
-
-const findAllUsers: QueryResolvers['users'] = () => {
-  return datasource;
-};
-
-const resolvers: Resolvers = {
-  Mutation: {
-    registerUser: createUser,
-  },
+import Movie from './models/movie';
+export const resolvers = {
   Query: {
-    users: findAllUsers,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    getMovies: async (_:any) => {
+      return await Movie.find();
+    },
+   
   },
-};
-
-export { resolvers };
+  Mutation: {
+    createMovie: async (parent: any, args: any) => {
+      // eslint-disable-next-line sort-destructure-keys/sort-destructure-keys
+      const{ title, rating, year } = args.info;
+      // eslint-disable-next-line newline-after-var
+      const createdMovie = new Movie({
+        title,
+        rating, 
+        year
+      });
+      // eslint-disable-next-line newline-after-var
+      await createdMovie.save();
+      // eslint-disable-next-line semi
+      return 'create'
+    },
+  },
+// eslint-disable-next-line semi
+}
