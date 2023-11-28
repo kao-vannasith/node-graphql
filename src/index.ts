@@ -11,6 +11,7 @@ import { createServer } from "http";
 
 import ChatModel from './models/chat';
 
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 type ApolloContext = {};
 
@@ -21,6 +22,13 @@ const io = new Server(httpServer, { cors: { origin: '*' } });
 io.on('connection', (socket: Socket) => {
   console.log('connection');
   socket.on('chat message', (msg) => {
+    ChatModel.find().then((result:any) => {
+      msg = result.map((i:any) => i);
+      io.emit('chat message', msg);
+    }).catch((err:any) => {
+      console.log(err);
+    // eslint-disable-next-line semi
+    })
     // eslint-disable-next-line newline-after-var
     const chat = new ChatModel({
       username: 'kao',
@@ -31,6 +39,7 @@ io.on('connection', (socket: Socket) => {
 
     // eslint-disable-next-line prefer-template
     console.log('message: ' + msg);
+    
     io.emit('chat message', msg);
   });
   socket.on('disconnect', () => {
